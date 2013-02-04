@@ -7,7 +7,7 @@ be friends with someone who doesn't share their taste in music?
 Requirements
 ------------
 
-You need Java 6 to run this application and Maven to build it.
+You need Java Development Kit 6 or higher and Maven to build it.
 
 Building
 --------
