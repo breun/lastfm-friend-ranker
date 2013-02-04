@@ -2,6 +2,8 @@
 3rdparty
 configuration.properties
 
+target
+
 *.iml
 
 *.class
