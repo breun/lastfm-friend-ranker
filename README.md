@@ -4,6 +4,11 @@ Last.fm Friend Ranker
 Last.fm Friend Ranker ranks a [Last.fm](http://www.last.fm/) user's friends by the compatibility score. Who could really
 be friends with someone who doesn't share their taste in music?
 
+Requirements
+------------
+
+You need Java 6 to run this application and Maven to build it.
+
 Configuration
 -------------
 
