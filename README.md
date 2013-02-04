@@ -28,6 +28,7 @@ You can build and run the application locally using Maven:
 $ mvn jetty:run
 ```
 
-Once the application has started you can access it on http://localhost:8080/
+Once the application has started you can access it on
+[http://localhost:8080/lastfm-friend-ranker](http://localhost:8080/lastfm-friend-ranker).
 
 Of course you can also build a WAR file using `mvn package` and deploy it to your favorite Java Servlet container.
