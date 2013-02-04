@@ -35,8 +35,7 @@ After the WAR file has been built you can run the application locally on Jetty u
 $ mvn jetty:run
 ```
 
-Once the application has started you can access it on
-[http://localhost:8080/lastfm-friend-ranker/](http://localhost:8080/lastfm-friend-ranker/).
+Once the application has started you can access it on [http://localhost:8080/](http://localhost:8080/).
 
 Of course you can also deploy the WAR file (you should find it in the `target` directory after building) to your
 favorite Java Servlet container.
