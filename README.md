@@ -9,6 +9,13 @@ Requirements
 
 You need Java 6 to run this application and Maven to build it.
 
+Building
+--------
+
+```
+$ mvn package
+```
+
 Configuration
 -------------
 
@@ -22,13 +29,14 @@ That's it, you're ready to go!
 Running
 -------
 
-You can build and run the application locally using Maven:
+After the WAR file has been built you can run the application locally on Jetty using Maven:
 
 ```
 $ mvn jetty:run
 ```
 
 Once the application has started you can access it on
-[http://localhost:8080/lastfm-friend-ranker](http://localhost:8080/lastfm-friend-ranker).
+[http://localhost:8080/lastfm-friend-ranker/](http://localhost:8080/lastfm-friend-ranker/).
 
-Of course you can also build a WAR file using `mvn package` and deploy it to your favorite Java Servlet container.
+Of course you can also deploy the WAR file (you should find it in the `target` directory after building) to your
+favorite Java Servlet container.
