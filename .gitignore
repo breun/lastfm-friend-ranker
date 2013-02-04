@@ -1,3 +1,9 @@
+.idea
+3rdparty
+configuration.properties
+
+*.iml
+
 *.class
 
 # Package Files #
