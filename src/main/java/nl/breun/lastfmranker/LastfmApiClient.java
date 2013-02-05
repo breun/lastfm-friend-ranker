@@ -14,11 +14,13 @@ public class LastfmApiClient
 {
     private static final Logger LOGGER = Logger.getLogger(LastfmApiClient.class.getName());
 
+    private static final String USER_AGENT = "lastfm-friend-ranker";
+
     private String apiKey;
 
     public LastfmApiClient(final String apiKey)
     {
-        Caller.getInstance().setUserAgent("tst");
+        Caller.getInstance().setUserAgent(USER_AGENT);
         this.apiKey = apiKey;
     }
 
