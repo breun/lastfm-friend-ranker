@@ -7,7 +7,6 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 
 import java.util.Iterator;
-import java.util.Map;
 
 public class LastfmFriendRankerUI extends UI
 {
@@ -17,7 +16,7 @@ public class LastfmFriendRankerUI extends UI
 
     private final Configuration configuration = Configuration.getInstance();
 
-    private final IndexedContainer data = new IndexedContainer();
+    private final IndexedContainer friendData = new IndexedContainer();
 
     private final TextField usernameField = new TextField();
     private final Table table = new Table();
@@ -27,9 +26,9 @@ public class LastfmFriendRankerUI extends UI
     @Override
     protected final void init(VaadinRequest request)
     {
-        initLastfmApiClient();
-
         Page.getCurrent().setTitle("Last.fm Friend Ranker");
+
+        initLastfmApiClient();
 
         final VerticalLayout layout = new VerticalLayout();
         setContent(layout);
@@ -47,17 +46,17 @@ public class LastfmFriendRankerUI extends UI
                 public void buttonClick(ClickEvent event)
                 {
                     final String username = usernameField.getValue();
-                    updateFriends(username);
+                    updateFriendData(username);
                 }
             }
         );
         inputLayout.addComponent(button);
 
-        data.addContainerProperty(RANK, Integer.class, -1);
-        data.addContainerProperty(USER, String.class, "");
-        data.addContainerProperty(COMPATIBILITY, String.class, "0");
+        friendData.addContainerProperty(RANK, Integer.class, -1);
+        friendData.addContainerProperty(USER, String.class, "");
+        friendData.addContainerProperty(COMPATIBILITY, String.class, "0");
 
-        table.setContainerDataSource(data);
+        table.setContainerDataSource(friendData);
         layout.addComponent(table);
     }
 
@@ -67,20 +66,17 @@ public class LastfmFriendRankerUI extends UI
         apiClient = new LastfmApiClient(apiKey);
     }
 
-    private void updateFriends(final String username)
+    private void updateFriendData(final String username)
     {
-        data.removeAllItems();
+        friendData.removeAllItems();
 
-        final Map<String, Float> friendsAndCompatibilityScores = apiClient.getFriendsAndCompatibilityScores(username);
-
-        for (Map.Entry<String, Float> entry : friendsAndCompatibilityScores.entrySet())
+        for (String friend : apiClient.getFriends(username))
         {
-            final String friendName = entry.getKey();
-            final Float friendCompatibility = entry.getValue();
+            final Float compatibility = apiClient.getCompatibility(username, friend);
 
-            final Object id = data.addItem();
-            data.getContainerProperty(id, USER).setValue(friendName);
-            data.getContainerProperty(id, COMPATIBILITY).setValue(Float.toString(friendCompatibility));
+            final Object id = friendData.addItem();
+            friendData.getContainerProperty(id, USER).setValue(friend);
+            friendData.getContainerProperty(id, COMPATIBILITY).setValue(Float.toString(compatibility));
         }
 
         sortAndAddRankToData();
@@ -89,15 +85,15 @@ public class LastfmFriendRankerUI extends UI
     private void sortAndAddRankToData()
     {
         // Sort by descending compatibility
-        data.sort(new Object[]{COMPATIBILITY}, new boolean[]{false});
+        friendData.sort(new Object[]{COMPATIBILITY}, new boolean[]{false});
 
         // Add rank to sorted entries
         int rank = 1;
 
-        for (Iterator iterator = data.getItemIds().iterator(); iterator.hasNext(); rank++)
+        for (Iterator iterator = friendData.getItemIds().iterator(); iterator.hasNext(); rank++)
         {
             final Object id = iterator.next();
-            data.getContainerProperty(id, RANK).setValue(rank);
+            friendData.getContainerProperty(id, RANK).setValue(rank);
         }
     }
 }
