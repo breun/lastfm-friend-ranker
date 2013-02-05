@@ -5,35 +5,24 @@ import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
-import de.umass.lastfm.Caller;
-import de.umass.lastfm.PaginatedResult;
-import de.umass.lastfm.Tasteometer;
-import de.umass.lastfm.Tasteometer.InputType;
-import de.umass.lastfm.User;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.Iterator;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Map;
 
 public class LastfmFriendRankerUI extends UI
 {
-    private static final Logger LOGGER = Logger.getLogger(LastfmFriendRankerUI.class.getName());
-    private static final String CONFIGURATION = "configuration.properties";
-
     private static final String RANK = "Rank";
     private static final String USER = "User";
     private static final String COMPATIBILITY = "Compatibility";
+
+    private final Configuration configuration = Configuration.getInstance();
 
     private final IndexedContainer data = new IndexedContainer();
 
     private final TextField usernameField = new TextField();
     private final Table table = new Table();
 
-    private String apiKey;
+    private LastfmApiClient apiClient;
 
     @Override
     protected final void init(VaadinRequest request)
@@ -72,69 +61,32 @@ public class LastfmFriendRankerUI extends UI
         layout.addComponent(table);
     }
 
-    private void initLastfmApiClient() {
-        Caller.getInstance().setUserAgent("tst");
-        initApiKey();
-    }
-
-    private void initApiKey()
+    private void initLastfmApiClient()
     {
-        try
-        {
-            Reader reader = new FileReader(CONFIGURATION);
-            try
-            {
-                Properties properties = new Properties();
-                properties.load(reader);
-                apiKey = properties.getProperty("api_key");
-            }
-            finally
-            {
-                reader.close();
-            }
-        }
-        catch (IOException ex)
-        {
-            LOGGER.log(Level.SEVERE, "Error reading api_key from " + CONFIGURATION, ex);
-        }
+        final String apiKey = configuration.getLastfmApiKey();
+        apiClient = new LastfmApiClient(apiKey);
     }
 
     private void updateFriends(final String username)
     {
-        resetData();
-
-        updateFriendsAndCompatibilityScores(username);
-
-        sortAndRank();
-    }
-
-    private void resetData()
-    {
         data.removeAllItems();
-    }
 
-    private void updateFriendsAndCompatibilityScores(String username)
-    {
-        LOGGER.log(Level.INFO, "Getting friends and compatibility scores for Last.fm user {0}", username);
+        final Map<String, Float> friendsAndCompatibilityScores = apiClient.getFriendsAndCompatibilityScores(username);
 
-        final PaginatedResult<User> friends = User.getFriends(username, false, 1, Integer.MAX_VALUE, apiKey);
-
-        for (User friend : friends)
+        for (Map.Entry<String, Float> entry : friendsAndCompatibilityScores.entrySet())
         {
-            final String friendName = friend.getName();
-            final Float score = Tasteometer.compare(InputType.USER, username, InputType.USER, friendName, apiKey).getScore();
-
-            LOGGER.log(Level.INFO, "Compatibility for {0} and {1} is {2}", new Object[]{username, friendName, score});
+            final String friendName = entry.getKey();
+            final Float friendCompatibility = entry.getValue();
 
             final Object id = data.addItem();
             data.getContainerProperty(id, USER).setValue(friendName);
-            data.getContainerProperty(id, COMPATIBILITY).setValue(Float.toString(score));
+            data.getContainerProperty(id, COMPATIBILITY).setValue(Float.toString(friendCompatibility));
         }
 
-        LOGGER.log(Level.INFO, "Done getting data for Last.fm user {0}", username);
+        sortAndAddRankToData();
     }
 
-    private void sortAndRank()
+    private void sortAndAddRankToData()
     {
         // Sort by descending compatibility
         data.sort(new Object[]{COMPATIBILITY}, new boolean[]{false});
