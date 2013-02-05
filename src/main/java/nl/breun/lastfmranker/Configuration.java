@@ -1,5 +1,6 @@
 package nl.breun.lastfmranker;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -9,22 +10,17 @@ import java.util.logging.Logger;
 
 public class Configuration
 {
-    private static class SingletonHolder
-    {
-        public static final Configuration INSTANCE = new Configuration();
-    }
-
     private static final Logger LOGGER = Logger.getLogger(Configuration.class.getName());
 
-    private static final String CONFIGURATION_FILE = "configuration.properties";
-
+    private static final String SYSTEM_PROPERTY_OPENSHIFT_DATA_DIR = "OPENSHIFT_DATA_DIR";
+    private static final String CONFIGURATION_FILENAME = "configuration.properties";
     private static final String PROPERTY_API_KEY = "api_key";
 
     private Properties properties = new Properties();
 
     private Configuration()
     {
-        loadDataFromPropertiesFile();
+        loadProperties();
     }
 
     public String getLastfmApiKey()
@@ -32,19 +28,14 @@ public class Configuration
         return properties.getProperty(PROPERTY_API_KEY);
     }
 
-    /**
-     * Reloads the configuration properties from the configuration file.
-     */
-    public void refresh()
+    private void loadProperties()
     {
-        loadDataFromPropertiesFile();
-    }
+        final File configurationDirectory = findConfigurationDirectory();
+        final File configurationFile = new File(configurationDirectory, CONFIGURATION_FILENAME);
 
-    private void loadDataFromPropertiesFile()
-    {
         try
         {
-            Reader reader = new FileReader(CONFIGURATION_FILE);
+            Reader reader = new FileReader(configurationFile);
             try
             {
                 properties.load(reader);
@@ -56,8 +47,26 @@ public class Configuration
         }
         catch (IOException ex)
         {
-            LOGGER.log(Level.SEVERE, "Error reading api_key from " + CONFIGURATION_FILE, ex);
+            LOGGER.log(Level.SEVERE, "Error reading api_key from " + configurationFile, ex);
         }
+    }
+
+    private File findConfigurationDirectory()
+    {
+        File configurationDirectory = new File(".");
+
+        final String openshiftDataDirectory = System.getenv(SYSTEM_PROPERTY_OPENSHIFT_DATA_DIR);
+        if (openshiftDataDirectory != null)
+        {
+            configurationDirectory = new File(openshiftDataDirectory);
+        }
+
+        return configurationDirectory;
+    }
+
+    private static class SingletonHolder
+    {
+        public static final Configuration INSTANCE = new Configuration();
     }
 
     public static Configuration getInstance()
