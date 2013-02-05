@@ -14,7 +14,7 @@ public class Configuration
 
     private static final String SYSTEM_PROPERTY_OPENSHIFT_DATA_DIR = "OPENSHIFT_DATA_DIR";
     private static final String CONFIGURATION_FILENAME = "configuration.properties";
-    private static final String PROPERTY_API_KEY = "api_key";
+    private static final String PROPERTY_LASTFM_API_KEY = "lastfm_api_key";
 
     private Properties properties = new Properties();
 
@@ -25,7 +25,7 @@ public class Configuration
 
     public String getLastfmApiKey()
     {
-        return properties.getProperty(PROPERTY_API_KEY);
+        return properties.getProperty(PROPERTY_LASTFM_API_KEY);
     }
 
     private void loadProperties()
@@ -47,7 +47,7 @@ public class Configuration
         }
         catch (IOException ex)
         {
-            LOGGER.log(Level.SEVERE, "Error reading api_key from " + configurationFile, ex);
+            LOGGER.log(Level.SEVERE, "Error reading configuration from " + configurationFile, ex);
         }
     }
 
