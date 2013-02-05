@@ -37,5 +37,6 @@ $ mvn jetty:run
 
 Once the application has started you can access it on [http://localhost:8080/](http://localhost:8080/).
 
-Of course you can also deploy the WAR file (you should find it in the `target` directory after building) to your
-favorite Java Servlet container.
+Of course you can always deploy a WAR file (you should find it in the `target` directory after building) to your
+favorite Java Servlet container, but the configuration loading code probably needs some love before that will work
+properly.
