@@ -19,7 +19,7 @@ public class LastfmApiClient
         this.apiKey = apiKey;
     }
 
-    public Collection<String> getFriends(final String username)
+    public final Collection<String> getFriends(final String username)
     {
         final Collection<String> friends = new ArrayList<String>();
 
@@ -31,7 +31,7 @@ public class LastfmApiClient
         return friends;
     }
 
-    public Float getCompatibility(final String user1, final String user2)
+    public final Float getCompatibility(final String user1, final String user2)
     {
         return Tasteometer.compare(Tasteometer.InputType.USER, user1, Tasteometer.InputType.USER, user2, apiKey).getScore();
     }
