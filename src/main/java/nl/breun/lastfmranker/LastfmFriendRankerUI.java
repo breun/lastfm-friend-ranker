@@ -1,24 +1,23 @@
 package nl.breun.lastfmranker;
 
-import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 
-import java.util.Iterator;
+import java.util.Collection;
 
 public class LastfmFriendRankerUI extends UI
 {
-    private static final String RANK = "Rank";
     private static final String USER = "User";
     private static final String COMPATIBILITY = "Compatibility";
 
     private final Configuration configuration = Configuration.getInstance();
 
-    private final IndexedContainer friendData = new IndexedContainer();
-
     private final TextField usernameField = new TextField();
+    private final Button button = new Button("Let's go!");
+    private final ProgressIndicator progressIndicator = new ProgressIndicator();
+    private final Label statusLabel = new Label();
     private final Table table = new Table();
 
     private LastfmApiClient apiClient;
@@ -31,33 +30,40 @@ public class LastfmFriendRankerUI extends UI
         initLastfmApiClient();
 
         final VerticalLayout layout = new VerticalLayout();
-        setContent(layout);
-
-        final HorizontalLayout inputLayout = new HorizontalLayout();
-        layout.addComponent(inputLayout);
 
         usernameField.setInputPrompt("Last.fm username");
-        inputLayout.addComponent(usernameField);
+        layout.addComponent(usernameField);
 
-        final Button button = new Button("Let's go!",
-            new Button.ClickListener()
+        button.addClickListener(new Button.ClickListener()
             {
                 @Override
                 public void buttonClick(ClickEvent event)
                 {
                     final String username = usernameField.getValue();
-                    updateFriendData(username);
+
+                    button.setEnabled(false);
+                    progressIndicator.setEnabled(true);
+                    progressIndicator.setValue(0f);
+
+                    new Worker(username).start();
                 }
             }
         );
-        inputLayout.addComponent(button);
+        layout.addComponent(button);
 
-        friendData.addContainerProperty(RANK, Integer.class, -1);
-        friendData.addContainerProperty(USER, String.class, "");
-        friendData.addContainerProperty(COMPATIBILITY, String.class, "0");
+        progressIndicator.setEnabled(false);
+        layout.addComponent(progressIndicator);
 
-        table.setContainerDataSource(friendData);
+        statusLabel.setValue("Ready");
+        layout.addComponent(statusLabel);
+
+        table.setRowHeaderMode(Table.RowHeaderMode.INDEX);
+        table.addContainerProperty(USER, String.class, "");
+        table.addContainerProperty(COMPATIBILITY, String.class, "0");
+        table.setSortEnabled(false);
         layout.addComponent(table);
+
+        setContent(layout);
     }
 
     private void initLastfmApiClient()
@@ -66,34 +72,108 @@ public class LastfmFriendRankerUI extends UI
         apiClient = new LastfmApiClient(apiKey);
     }
 
-    private void updateFriendData(final String username)
+    class Worker extends Thread
     {
-        friendData.removeAllItems();
+        private final String username;
 
-        for (String friend : apiClient.getFriends(username))
+        private int current = 1;
+        private int total = Integer.MAX_VALUE;
+
+        Worker(final String username)
         {
-            final Float compatibility = apiClient.getCompatibility(username, friend);
-
-            final Object id = friendData.addItem();
-            friendData.getContainerProperty(id, USER).setValue(friend);
-            friendData.getContainerProperty(id, COMPATIBILITY).setValue(Float.toString(compatibility));
+            this.username = username;
         }
 
-        sortAndAddRankToData();
-    }
-
-    private void sortAndAddRankToData()
-    {
-        // Sort by descending compatibility
-        friendData.sort(new Object[]{COMPATIBILITY}, new boolean[]{false});
-
-        // Add rank to sorted entries
-        int rank = 1;
-
-        for (Iterator iterator = friendData.getItemIds().iterator(); iterator.hasNext(); rank++)
+        @Override
+        public void run()
         {
-            final Object id = iterator.next();
-            friendData.getContainerProperty(id, RANK).setValue(rank);
+            table.getUI().getSession().lock();
+            try
+            {
+                table.removeAllItems();
+            }
+            finally
+            {
+                table.getUI().getSession().unlock();
+            }
+
+            loadFriendsAndCompatibilityScores();
+
+            button.getUI().getSession().lock();
+            try
+            {
+                button.setEnabled(true);
+            }
+            finally
+            {
+                button.getUI().getSession().unlock();
+            }
+
+            progressIndicator.getUI().getSession().lock();
+            try
+            {
+                progressIndicator.setEnabled(false);
+            }
+            finally
+            {
+                progressIndicator.getUI().getSession().unlock();
+            }
+        }
+
+        private void loadFriendsAndCompatibilityScores()
+        {
+            final Collection<String> friends = apiClient.getFriends(username);
+            total = friends.size();
+
+            for (String friend : friends)
+            {
+                statusLabel.getUI().getSession().lock();
+                try
+                {
+                    statusLabel.setValue("Checking compatibility with " + friend + " (" + current + "/" + total + ")");
+                }
+                finally
+                {
+                    statusLabel.getUI().getSession().unlock();
+                }
+
+                final Float compatibility = apiClient.getCompatibility(username, friend);
+
+                table.getUI().getSession().lock();
+                try
+                {
+                    final Object id = table.addItem();
+                    table.getContainerProperty(id, USER).setValue(friend);
+                    table.getContainerProperty(id, COMPATIBILITY).setValue(Float.toString(compatibility));
+                    table.sort(new Object[]{COMPATIBILITY}, new boolean[]{false});
+                }
+                finally
+                {
+                    table.getUI().getSession().unlock();
+                }
+
+                progressIndicator.getUI().getSession().lock();
+                try
+                {
+                    progressIndicator.setValue((float) current / total);
+                }
+                finally
+                {
+                    progressIndicator.getUI().getSession().unlock();
+                }
+
+                current++;
+            }
+
+            statusLabel.getUI().getSession().lock();
+            try
+            {
+                statusLabel.setValue("Ready");
+            }
+            finally
+            {
+                statusLabel.getUI().getSession().unlock();
+            }
         }
     }
 }
