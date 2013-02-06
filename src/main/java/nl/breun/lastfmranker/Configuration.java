@@ -8,7 +8,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Configuration
+public final class Configuration
 {
     private static final Logger LOGGER = Logger.getLogger(Configuration.class.getName());
 
@@ -64,13 +64,13 @@ public class Configuration
         return configurationDirectory;
     }
 
-    private static class SingletonHolder
-    {
-        public static final Configuration INSTANCE = new Configuration();
-    }
-
     public static Configuration getInstance()
     {
         return SingletonHolder.INSTANCE;
+    }
+
+    private static class SingletonHolder
+    {
+        public static final Configuration INSTANCE = new Configuration();
     }
 }
