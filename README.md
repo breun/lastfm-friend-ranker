@@ -7,7 +7,7 @@ be friends with someone who doesn't share their taste in music?
 Requirements
 ------------
 
-You need Java Development Kit 6 or higher and Maven to build it.
+You need Java Development Kit 7 or higher and Maven to build it.
 
 Building
 --------
@@ -29,14 +29,14 @@ That's it, you're ready to go!
 Running
 -------
 
-After the WAR file has been built you can run the application locally on Jetty using Maven:
+After the WAR file has been built you can run the application locally on Tomcat 7 via the Maven plugin:
 
 ```
-$ mvn jetty:run
+$ mvn tomcat7:run
 ```
 
 Once the application has started you can access it on [http://localhost:8080/](http://localhost:8080/).
 
-Of course you can always deploy a WAR file (you should find it in the `target` directory after building) to your
-favorite Java Servlet container, but the configuration loading code probably needs some love before that will work
+Of course you can always deploy the WAR file (you should find it in the `target` directory after building) to your
+favorite Java Servlet container, but the configuration loading code might need some love before that will work
 properly.
