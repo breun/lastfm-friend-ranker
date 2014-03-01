@@ -2,22 +2,31 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
-    <display-name>Vaadin Web Application</display-name>
+    <display-name>Last.fm Friend Ranker</display-name>
+
     <context-param>
         <description>Vaadin production mode</description>
         <param-name>productionMode</param-name>
         <param-value>true</param-value>
     </context-param>
+
     <servlet>
         <servlet-name>Vaadin Application Servlet</servlet-name>
         <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
-        <async-supported>true</async-supported>
+
         <init-param>
-            <description>Vaadin UI to display</description>
             <param-name>UI</param-name>
             <param-value>nl.breun.lastfmranker.LastfmFriendRankerUI</param-value>
         </init-param>
+
+        <!-- Enable server push -->
+        <init-param>
+            <param-name>pushmode</param-name>
+            <param-value>automatic</param-value>
+        </init-param>
+        <async-supported>true</async-supported>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>Vaadin Application Servlet</servlet-name>
         <url-pattern>/*</url-pattern>

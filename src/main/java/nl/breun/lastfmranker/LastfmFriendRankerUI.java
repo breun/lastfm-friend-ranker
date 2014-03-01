@@ -53,34 +53,55 @@ public class LastfmFriendRankerUI extends UI implements Updater {
 
     @Override
     public void clearResults() {
-        table.removeAllItems();
-        progressBar.setValue(0f);
+        access(new Runnable() {
+            @Override
+            public void run() {
+                table.removeAllItems();
+                progressBar.setValue(0f);
+
+            }
+        });
     }
 
     @Override
     public void setStatus(final String message) {
-        statusLabel.setValue(message);
+        access(new Runnable() {
+            @Override
+            public void run() {
+                statusLabel.setValue(message);
+            }
+        });
     }
 
     @Override
-    public void setProgress(Float value) {
-        progressBar.setValue(value);
+    public void setProgress(final Float value) {
+        access(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setValue(value);
+            }
+        });
     }
 
     @Override
-    public void setRunning(boolean running) {
-        statusLabel.setValue(running ? "Running..." : "Ready");
-        button.setEnabled(!running);
-        progressBar.setEnabled(running);
+    public void setRunning(final boolean running) {
+        access(new Runnable() {
+            @Override
+            public void run() {
+                statusLabel.setValue(running ? "Running..." : "Ready");
+                button.setEnabled(!running);
+                progressBar.setEnabled(running);
+            }
+        });
     }
 
     @Override
     public void addFriendCompatibility(final String friend, final Float compatibility) {
-        accessSynchronously(new Runnable() {
+        access(new Runnable() {
             @Override
             public void run() {
-                table.addItem(new Object[] { friend, compatibility }, friend);
-                table.sort(new Object[] { COLUMN_COMPATIBILITY }, new boolean[] { false });
+                table.addItem(new Object[]{friend, compatibility}, friend);
+                table.sort(new Object[]{COLUMN_COMPATIBILITY}, new boolean[]{false});
             }
         });
     }
