@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/breun/lastfm-friend-ranker.png?branch=master)](https://travis-ci.org/breun/lastfm-friend-ranker)
+
 Last.fm Friend Ranker
 =====================
 
