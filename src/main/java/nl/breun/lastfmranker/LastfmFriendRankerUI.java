@@ -33,8 +33,7 @@ public class LastfmFriendRankerUI extends UI implements Updater {
                 final String username = usernameField.getValue();
                 new Worker(LastfmFriendRankerUI.this, username).start();
             }
-        }
-        );
+        });
         layout.addComponent(button);
 
         progressBar.setEnabled(false);
@@ -44,8 +43,8 @@ public class LastfmFriendRankerUI extends UI implements Updater {
         layout.addComponent(statusLabel);
 
         table.setRowHeaderMode(Table.RowHeaderMode.INDEX);
-        table.addContainerProperty(COLUMN_USER, String.class, "");
-        table.addContainerProperty(COLUMN_COMPATIBILITY, String.class, "0");
+        table.addContainerProperty(COLUMN_USER, String.class, null);
+        table.addContainerProperty(COLUMN_COMPATIBILITY, Float.class, null);
         table.setSortEnabled(false);
         layout.addComponent(table);
 
@@ -77,13 +76,11 @@ public class LastfmFriendRankerUI extends UI implements Updater {
 
     @Override
     public void addFriendCompatibility(final String friend, final Float compatibility) {
-        access(new Runnable() {
+        accessSynchronously(new Runnable() {
             @Override
             public void run() {
-                final Object id = table.addItem();
-                table.getContainerProperty(id, COLUMN_USER).setValue(friend);
-                table.getContainerProperty(id, COLUMN_COMPATIBILITY).setValue(Float.toString(compatibility));
-                table.sort(new Object[]{COLUMN_COMPATIBILITY}, new boolean[]{false});
+                table.addItem(new Object[] { friend, compatibility }, friend);
+                table.sort(new Object[] { COLUMN_COMPATIBILITY }, new boolean[] { false });
             }
         });
     }
