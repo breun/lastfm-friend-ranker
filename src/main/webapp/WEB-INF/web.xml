@@ -16,7 +16,7 @@
 
         <init-param>
             <param-name>UI</param-name>
-            <param-value>nl.breun.lastfmranker.LastfmFriendRankerUI</param-value>
+            <param-value>nl.breun.lastfmranker.LastfmFriendRanker</param-value>
         </init-param>
 
         <!-- Enable server push -->

@@ -7,7 +7,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 
 @Push
-public class LastfmFriendRankerUI extends UI implements Updater {
+public class LastfmFriendRanker extends UI implements Updater {
 
     private static final String COLUMN_USER = "User";
     private static final String COLUMN_COMPATIBILITY = "Compatibility";
@@ -31,7 +31,7 @@ public class LastfmFriendRankerUI extends UI implements Updater {
             @Override
             public void buttonClick(ClickEvent event) {
                 final String username = usernameField.getValue();
-                new Worker(LastfmFriendRankerUI.this, username).start();
+                new Worker(LastfmFriendRanker.this, username).start();
             }
         });
         layout.addComponent(button);
