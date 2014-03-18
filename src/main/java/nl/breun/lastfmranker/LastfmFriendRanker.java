@@ -4,7 +4,6 @@ import com.vaadin.annotations.Push;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
-import com.vaadin.ui.Button.ClickEvent;
 
 @Push
 public class LastfmFriendRanker extends UI implements Updater {
@@ -27,12 +26,9 @@ public class LastfmFriendRanker extends UI implements Updater {
         usernameField.setInputPrompt("Last.fm username");
         layout.addComponent(usernameField);
 
-        button.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(ClickEvent event) {
-                final String username = usernameField.getValue();
-                new Worker(LastfmFriendRanker.this, username).start();
-            }
+        button.addClickListener(event -> {
+            final String username = usernameField.getValue();
+            new Worker(LastfmFriendRanker.this, username).start();
         });
         layout.addComponent(button);
 
@@ -53,56 +49,36 @@ public class LastfmFriendRanker extends UI implements Updater {
 
     @Override
     public void clearResults() {
-        access(new Runnable() {
-            @Override
-            public void run() {
-                table.removeAllItems();
-                progressBar.setValue(0f);
-
-            }
+        access(() -> {
+            table.removeAllItems();
+            progressBar.setValue(0f);
         });
     }
 
     @Override
     public void setStatus(final String message) {
-        access(new Runnable() {
-            @Override
-            public void run() {
-                statusLabel.setValue(message);
-            }
-        });
+        access(() -> statusLabel.setValue(message));
     }
 
     @Override
     public void setProgress(final Float value) {
-        access(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setValue(value);
-            }
-        });
+        access(() -> progressBar.setValue(value));
     }
 
     @Override
     public void setRunning(final boolean running) {
-        access(new Runnable() {
-            @Override
-            public void run() {
-                statusLabel.setValue(running ? "Running..." : "Ready");
-                button.setEnabled(!running);
-                progressBar.setEnabled(running);
-            }
+        access(() -> {
+            statusLabel.setValue(running ? "Running..." : "Ready");
+            button.setEnabled(!running);
+            progressBar.setEnabled(running);
         });
     }
 
     @Override
     public void addFriendCompatibility(final String friend, final Float compatibility) {
-        access(new Runnable() {
-            @Override
-            public void run() {
-                table.addItem(new Object[]{friend, compatibility}, friend);
-                table.sort(new Object[]{COLUMN_COMPATIBILITY}, new boolean[]{false});
-            }
+        access(() -> {
+            table.addItem(new Object[]{friend, compatibility}, friend);
+            table.sort(new Object[]{COLUMN_COMPATIBILITY}, new boolean[]{false});
         });
     }
 }

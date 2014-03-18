@@ -4,8 +4,8 @@ import de.umass.lastfm.Caller;
 import de.umass.lastfm.Tasteometer;
 import de.umass.lastfm.User;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 class LastfmApiClient {
 
@@ -19,13 +19,11 @@ class LastfmApiClient {
     }
 
     public final Collection<String> getFriends(final String username) {
-        final Collection<String> friends = new ArrayList<>();
-
-        for (User friend : User.getFriends(username, false, 1, Integer.MAX_VALUE, apiKey)) {
-            friends.add(friend.getName());
-        }
-
-        return friends;
+        return User.getFriends(username, false, 1, Integer.MAX_VALUE, apiKey)
+                .getPageResults()
+                .stream()
+                .map(User::getName)
+                .collect(Collectors.toList());
     }
 
     public final Float getCompatibility(final String user1, final String user2) {
